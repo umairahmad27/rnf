@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { View, ImageBackground, StyleSheet } from 'react-native'
 import { TextInput, Button } from 'react-native-paper';
+import auth from '@react-native-firebase/auth';
 
 import bg from "../../assets/images/bg.jpg"
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -12,6 +13,7 @@ export default function Login({ navigation }) {
   const { dispatch } = useAuthContext()
 
   const [state, setState] = useState(initialState)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [isPasswordShow, setIsPasswordShow] = useState(false)
 
   const handleChange = (name, value) => {
@@ -29,11 +31,30 @@ export default function Login({ navigation }) {
       alert("Password must be 6 chars")
       return
     }
-    // console.log("email =>", email)
-    // console.log("password =>", password)
 
-    dispatch({ type: "LOGIN" })
+    setIsProcessing(true)
 
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user
+        console.log(user)
+        dispatch({ type: "LOGIN", payload: { user } })
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('That email address is already in use!');
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          console.log('That email address is invalid!');
+        }
+
+        console.error(error);
+      })
+      .finally(() => {
+        setIsProcessing(false)
+      })
   }
 
   return (
@@ -52,7 +73,7 @@ export default function Login({ navigation }) {
           secureTextEntry={!isPasswordShow ? true : false}
           right={<TextInput.Icon icon={isPasswordShow ? "eye-off" : "eye"} onPress={() => { setIsPasswordShow(!isPasswordShow) }} />}
         />
-        <Button mode="contained" buttonColor='white' textColor='black' style={{ borderRadius: 4 }} onPress={handleLogin}>Login</Button>
+        <Button mode="contained" buttonColor='white' textColor='black' style={{ borderRadius: 4 }} loading={isProcessing ? true : false} onPress={handleLogin}>Login</Button>
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Button mode="text" textColor='white' onPress={() => { navigation.navigate("Register") }}>Don't have an account?</Button>

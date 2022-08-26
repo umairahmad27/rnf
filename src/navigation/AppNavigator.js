@@ -12,12 +12,15 @@ import Login from "../screens/Auth/Login"
 import Register from "../screens/Auth/Register"
 import Forgot from "../screens/Auth/Forgot"
 import { useAuthContext } from '../contexts/AuthContext';
+import ScreenLoader from '../components/ScreenLoader';
 
 const Stack = createNativeStackNavigator()
 
 export default function AppNavigator() {
 
-    const { isAuthenticated } = useAuthContext()
+    const { isAuthenticated, isProcessing } = useAuthContext()
+
+    if (isProcessing) return <ScreenLoader />
 
     return (
         <NavigationContainer>
