@@ -11,12 +11,13 @@ import Contact from "../screens/Frontend/Contact"
 import Login from "../screens/Auth/Login"
 import Register from "../screens/Auth/Register"
 import Forgot from "../screens/Auth/Forgot"
+import { useAuthContext } from '../contexts/AuthContext';
 
 const Stack = createNativeStackNavigator()
 
 export default function AppNavigator() {
 
-    const isAuthenticated = false
+    const { isAuthenticated } = useAuthContext()
 
     return (
         <NavigationContainer>
